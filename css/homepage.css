@@ -4,6 +4,14 @@
   padding: 0;
   border-radius: 10px;
   overflow: hidden;
+  display: flex; 
+  justify-content: center; 
+  gap: 10px; 
+}
+
+.image-wrapper .cover-photo {
+  width: 50%; 
+  object-fit: cover; 
 }
 
 .two-column {
