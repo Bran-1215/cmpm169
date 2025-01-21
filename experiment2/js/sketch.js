@@ -43,6 +43,16 @@ var sketch = function(p) {
     createNodes();
   };
 
+let attractToMouse = false;  // Track attraction state
+
+p.mousePressed = function() {
+    attractToMouse = true;  // Enable attraction when mouse is pressed
+};
+
+p.mouseReleased = function() {
+    attractToMouse = false;  // Disable attraction when mouse is released
+};
+
   p.draw = function() {
     p.fill(255, 20);
     p.rect(0, 0, p.width, p.height);
@@ -50,7 +60,7 @@ var sketch = function(p) {
     p.fill(0);
     for (var i = 0; i < nodes.length; i++) {
       // Apply mouse repelling force to nodes
-      nodes[i].repelFromMouse(p.mouseX, p.mouseY);
+      nodes[i].repelFromMouse(p.mouseX, p.mouseY, attractToMouse);
 
       // Let all nodes repel each other
       nodes[i].attractNodes(nodes);

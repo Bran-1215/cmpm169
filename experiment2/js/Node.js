@@ -70,25 +70,25 @@ var Node = function(x, y, minX, maxX, minY, maxY) {
     this.velocity.mult(1 - this.damping);
   };
 
-  Node.prototype.repelFromMouse = function(mouseX, mouseY) {
-    var mouseVector = myp5.createVector(mouseX, mouseY);
-    var nodeVector = myp5.createVector(this.x, this.y);
-    var distance = mouseVector.dist(nodeVector);
-  
-    var maxDistance = 200;  // Max effect range of the mouse
-    var repelStrength = 5;  // Repelling force strength
-  
+  Node.prototype.repelFromMouse = function(mouseX, mouseY, attractMode) {
+    let mouseVector = myp5.createVector(mouseX, mouseY);
+    let nodeVector = myp5.createVector(this.x, this.y);
+    let distance = mouseVector.dist(nodeVector);
+
+    let maxDistance = attractMode ? 1000 : 200;  // Max effect range of the mouse
+    let forceStrength = attractMode ? 5 : -5;  // Attraction when true, repulsion when false
+
     if (distance > 0 && distance < maxDistance) {
-      var s = myp5.pow(distance / maxDistance, 1 / this.ramp);
-      var f = repelStrength * (1 - s);  // Linear falloff effect
-  
-      // Calculate direction away from the mouse
-      var repelVector = nodeVector.sub(mouseVector).normalize().mult(f);
-  
-      // Apply force to velocity
-      this.velocity.add(repelVector);
+        let s = myp5.pow(distance / maxDistance, 1 / this.ramp);
+        let f = forceStrength * (1 - s);  // Linear falloff effect
+
+        // Calculate direction towards or away from the mouse
+        let repelVector = mouseVector.sub(nodeVector).normalize().mult(f);
+
+        // Apply force to velocity
+        this.velocity.add(repelVector);
     }
-  };
+};
   
   Node.prototype.constructor = Node;
   
