@@ -82,4 +82,6 @@ var sketch = function(p) {
 
 };
 
-var myp5 = new p5(sketch, 'canvas-container');
+if (typeof window.myp5 === 'undefined') {
+  window.myp5 = new p5(sketch, 'canvas-container');
+}
