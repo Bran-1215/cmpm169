@@ -32,7 +32,7 @@ var sketch = function(p) {
   // An array with nodes
   var nodes = [];
 
-  var nodeCount = 200;
+  var nodeCount = 100;
 
   p.setup = function() {
     let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -54,7 +54,7 @@ var sketch = function(p) {
       // Apply velocity vector and update position
       nodes[i].update();
       // Draw node
-      p.ellipse(nodes[i].x, nodes[i].y, 10, 10);
+      p.ellipse(nodes[i].x, nodes[i].y, 30, 30);
     }
   };
 
