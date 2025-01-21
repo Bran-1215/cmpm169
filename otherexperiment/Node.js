@@ -1,5 +1,5 @@
 var Node = function(x, y, minX, maxX, minY, maxY) {
-    p5.Vector.call(this, x, y, 0);
+    var pos = myp5.createVector(x, y);
     this.minX = Number.MIN_VALUE || minX;
     this.maxX = Number.MAX_VALUE || maxX;
     this.minY = Number.MIN_VALUE || minY;

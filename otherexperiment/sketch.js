@@ -66,6 +66,7 @@ var sketch = function(p) {
   };
 
   function createNodes() {
+    console.log("Creating nodes...");
     nodes = [];
     for (var i = 0; i < nodeCount; i++) {
       nodes.push(new Node(
