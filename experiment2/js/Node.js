@@ -69,6 +69,26 @@ var Node = function(x, y, minX, maxX, minY, maxY) {
   
     this.velocity.mult(1 - this.damping);
   };
+
+  Node.prototype.repelFromMouse = function(mouseX, mouseY) {
+    var mouseVector = myp5.createVector(mouseX, mouseY);
+    var nodeVector = myp5.createVector(this.x, this.y);
+    var distance = mouseVector.dist(nodeVector);
+  
+    var maxDistance = 200;  // Max effect range of the mouse
+    var repelStrength = 5;  // Repelling force strength
+  
+    if (distance > 0 && distance < maxDistance) {
+      var s = myp5.pow(distance / maxDistance, 1 / this.ramp);
+      var f = repelStrength * (1 - s);  // Linear falloff effect
+  
+      // Calculate direction away from the mouse
+      var repelVector = nodeVector.sub(mouseVector).normalize().mult(f);
+  
+      // Apply force to velocity
+      this.velocity.add(repelVector);
+    }
+  };
   
   Node.prototype.constructor = Node;
   

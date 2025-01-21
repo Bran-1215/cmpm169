@@ -49,6 +49,9 @@ var sketch = function(p) {
 
     p.fill(0);
     for (var i = 0; i < nodes.length; i++) {
+      // Apply mouse repelling force to nodes
+      nodes[i].repelFromMouse(p.mouseX, p.mouseY);
+
       // Let all nodes repel each other
       nodes[i].attractNodes(nodes);
       // Apply velocity vector and update position
