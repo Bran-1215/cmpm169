@@ -35,7 +35,8 @@ var sketch = function(p) {
   var nodeCount = 200;
 
   p.setup = function() {
-    p.createCanvas(p.windowWidth, p.windowHeight);
+    let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+    canvas.parent('canvas-container');  
     p.noStroke();
 
     // Create nodes
@@ -81,4 +82,4 @@ var sketch = function(p) {
 
 };
 
-var myp5 = new p5(sketch);
+var myp5 = new p5(sketch, 'canvas-container');
