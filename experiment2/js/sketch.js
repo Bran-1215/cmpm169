@@ -51,60 +51,29 @@ function setup() {
   resizeScreen();
 }
 
-'use strict';
+// draw() function is called repeatedly, it's the main animation loop
+function draw() {
+  background(220);    
+  // call a method on the instance
+  myInstance.myMethod();
 
-var sketch = function(p) {
+  // Set up rotation for the rectangle
+  push(); // Save the current drawing context
+  translate(centerHorz, centerVert); // Move the origin to the rectangle's center
+  rotate(frameCount / 100.0); // Rotate by frameCount to animate the rotation
+  fill(234, 31, 81);
+  noStroke();
+  rect(-125, -125, 250, 250); // Draw the rectangle centered on the new origin
+  pop(); // Restore the original drawing context
 
-  // An array with nodes
-  var nodes = [];
+  // The text is not affected by the translate and rotate
+  fill(255);
+  textStyle(BOLD);
+  textSize(140);
+  text("p5*", centerHorz - 105, centerVert + 40);
+}
 
-  var nodeCount = 200;
-
-  p.setup = function() {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    p.noStroke();
-
-    // Create nodes
-    createNodes();
-  };
-
-  p.draw = function() {
-    p.fill(255, 20);
-    p.rect(0, 0, p.width, p.height);
-
-    p.fill(0);
-    for (var i = 0; i < nodes.length; i++) {
-      // Let all nodes repel each other
-      nodes[i].attractNodes(nodes);
-      // Apply velocity vector and update position
-      nodes[i].update();
-      // Draw node
-      p.ellipse(nodes[i].x, nodes[i].y, 10, 10);
-    }
-  };
-
-  p.keyPressed = function() {
-    if (p.key == 's' || p.key == 'S') p.saveCanvas(gd.timestamp(), 'png');
-    if (p.key == 'r' || p.key == 'R') {
-      p.background(255);
-      createNodes();
-    }
-  };
-
-  function createNodes() {
-    nodes = [];
-    for (var i = 0; i < nodeCount; i++) {
-      nodes.push(new Node(
-        p.width / 2 + p.random(-1, 1),
-        p.height / 2 + p.random(-1, 1),
-        5,
-        p.width - 5,
-        5,
-        p.height - 5
-      ));
-    }
-  }
-
-};
-
-var myp5 = new p5(sketch);
+// mousePressed() function is called once after every time a mouse button is pressed
+function mousePressed() {
+    // code to run when mouse is pressed
+}
