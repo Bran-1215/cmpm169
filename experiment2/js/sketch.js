@@ -67,7 +67,12 @@ p.mouseReleased = function() {
       // Apply velocity vector and update position
       nodes[i].update();
       // Draw node
-      p.ellipse(nodes[i].x, nodes[i].y, 30, 30);
+      p.push();
+      p.translate(nodes[i].x, nodes[i].y);
+      p.rotate(nodes[i].angle);
+      p.fill(nodes[i].color);
+      p.ellipse(0, 0, 30, 10);
+      p.pop();
     }
   };
 

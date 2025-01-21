@@ -75,19 +75,47 @@ var Node = function(x, y, minX, maxX, minY, maxY) {
     let nodeVector = myp5.createVector(this.x, this.y);
     let distance = mouseVector.dist(nodeVector);
 
-    let maxDistance = attractMode ? 1000 : 200;  // Max effect range of the mouse
-    let forceStrength = attractMode ? 5 : -5;  // Attraction when true, repulsion when false
+    let maxDistance = attractMode ? 1000 : 200;  // Larger range for attraction
+    let forceStrength = attractMode ? 5 : -5;   // Positive for attraction, negative for repulsion
 
     if (distance > 0 && distance < maxDistance) {
         let s = myp5.pow(distance / maxDistance, 1 / this.ramp);
         let f = forceStrength * (1 - s);  // Linear falloff effect
 
         // Calculate direction towards or away from the mouse
-        let repelVector = mouseVector.sub(nodeVector).normalize().mult(f);
+        let forceVector = mouseVector.sub(nodeVector).normalize().mult(f);
 
         // Apply force to velocity
-        this.velocity.add(repelVector);
+        this.velocity.add(forceVector);
     }
+
+    // Update rotation to face the mouse
+    this.updateRotation(mouseX, mouseY);
+    
+    // Update color based on distance
+    this.updateColor(mouseX, mouseY);
+};
+
+
+
+Node.prototype.updateRotation = function(mouseX, mouseY) {
+    let direction = myp5.createVector(mouseX - this.x, mouseY - this.y);
+    this.angle = direction.heading();  // Get angle in radians
+};
+
+Node.prototype.updateColor = function(mouseX, mouseY) {
+    let mouseVector = myp5.createVector(mouseX, mouseY);
+    let nodeVector = myp5.createVector(this.x, this.y);
+    let distance = mouseVector.dist(nodeVector);
+
+    let maxDistance = 1000;  // Define a max range for color influence
+
+    // Map the distance to a color gradient (closer = red, farther = green)
+    let r = myp5.map(distance, 0, maxDistance, 255, 0);
+    let g = myp5.map(distance, 0, maxDistance, 0, 255);
+    let b = myp5.map(distance, 0, maxDistance, 50, 50);
+
+    this.color = myp5.color(r, g, b);  // Store the color in p5.js format
 };
   
   Node.prototype.constructor = Node;
