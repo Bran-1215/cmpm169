@@ -1,73 +1,74 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment X - Subject/Topic</title>
+  <head>
+    <!-- This title is used for tabs and bookmarks -->
+    <title>Experiment 2 - Vector Art, Animation & Interactivity</title>
 
-	<!-- Use UTF character set, a good idea with any webpage -->
-	<meta charset="UTF-8" />
-	<!-- Set viewport so page remains consistently scaled w narrow devices -->
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Use UTF character set, a good idea with any webpage -->
+    <meta charset="UTF-8" />
+    <!-- Set viewport so page remains consistently scaled w narrow devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<!-- Include CSS file, including a site-wide CSS and for this particular page -->
-	<link rel="stylesheet" type="text/css" href="../css/site.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css">
+    <!-- Include CSS file, including a site-wide CSS and for this particular page -->
+    <link rel="stylesheet" type="text/css" href="../css/site.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
 
-	<!-- Load jQuery library -->
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-        crossorigin="anonymous"></script>
-	<!-- Load p5.js library -->
-	<script src="https://cdn.jsdelivr.net/npm/p5@1.9.2/lib/p5.js"></script>
+    <!-- Load jQuery library -->
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
+    <!-- Load p5.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.2/lib/p5.js"></script>
 
-	<!-- Link to javascript files - DEFER waits until all elements are rendered -->
-    <script type="text/javascript" src="../js/site.js" DEFER></script>
-	<!-- Use me for a JavaScript OOP Project -->
-	<script type="text/javascript" src="./js/project.js" DEFER></script>
-	<!-- Use me for a p5.js project -->
-	<script type="text/javascript" src="./js/sketch.js" DEFER></script>
-</head>
-<body>
-	<!-- Style this page by changing the CSS in ../css/site.css or css/experiment.css -->
-	<main id="content">
-		<section>
+    <!-- Link to javascript files - DEFER waits until all elements are rendered -->
+    <script type="text/javascript" src="../js/site.js" defer></script>
+    <!-- Use me for a JavaScript OOP Project -->
+    <script type="text/javascript" src="./js/project.js" defer></script>
+    <!-- Use me for a p5.js project -->
+    <script type="text/javascript" src="./js/sketch.js" defer></script>
+  </head>
+  <body>
+    <!-- Style this page by changing the CSS in ../css/site.css or css/experiment.css -->
+    <main id="content">
+      <section>
+        <h1>Experiment 2 - Vector Art, Animation & Interactivity</h1>
 
-			<h1>Experiment X - Subject/Topic</h1>
+        <div class="minor-section">
+          <div id="canvas-container">
+            <!-- canvas will be added here -->
+          </div>
+          <div class="fullscreen-box">
+            <button id="fullscreen">Fullscreen</button>
+          </div>
+        </div>
 
-			<div class="minor-section">
-				<div id="canvas-container">
-					<!-- canvas will be added here -->
-				</div>
-                <div class="fullscreen-box">
-                    <button id="fullscreen">Fullscreen</button>
-                </div>
-			</div>
+        <div class="minor-section">
+          <h2>Description</h2>
+          <p>In this experiment, I wanted to added mouse interactivity to an existing project of nodes. The nodes are repelled by the mouse, but are attracted when left clicking.</p>
+        </div>
 
-			<div class="minor-section">
-				<h2>Description</h2>
-				<p>What are you trying to acomplish with this experiment?</p>
-			</div>
+        <div class="minor-section">
+          <h2>Technical</h2>
+          <p>The main features, mouse repelling and attracting, works by computing a force vector and adding it to the node's velocity. This force vector is determined using the distance between the mouse and node and whether the mouse is pressed or not. All this functionality is put within a function in Node.js, which is called in sketch.js.</p>
+        </div>
 
-			<div class="minor-section">
-				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
-			</div>
+        <div class="minor-section">
+          <h2>Reflection</h2>
+          <p>
+            Brian Delinela - Starting from a pre-existing project, I contributed in writing code (and modifying code from ChatGPT). I'm satisfied with the end product of this experiment, but there's an itch deep down wanting to do more. I guess part of the creative process is knowing when to stop on an existing project to make room for more. It was a hassle trying to get the code from Generative Design to work well with the framework we have with our static webpage. It took a while to figure out how to remove a duplicate sketch from the canvas, and I think just emptying my cache fixed it.
+          </p>
+        </div>
+      </section>
+      <nav id="links" class="minor-section">
+        <!-- Put link back to homepage here. -->
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+        </ul>
+      </nav>
+    </main>
 
-			<div class="minor-section">
-				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
-			</div>
-
-		</section>
-		<nav id="links" class="minor-section">
-			<!-- Put link back to homepage here. -->
-            <ul>
-                <li><a href="../index.html">Home</a></li>
-            </ul>
-		</nav>
-	</main>
-
-<script src="js/Node.js"></script>
-
-</body>
+    <script src="js/Node.js"></script>
+  </body>
 </html>

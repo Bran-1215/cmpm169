@@ -25,35 +25,34 @@
  * s             : save png
  */
 
-'use strict';
+"use strict";
 
-var sketch = function(p) {
-
+var sketch = function (p) {
   // An array with nodes
   var nodes = [];
 
   var nodeCount = 100;
 
-  p.setup = function() {
+  p.setup = function () {
     let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-    canvas.parent('canvas-container');  
+    canvas.parent("canvas-container");
     p.noStroke();
 
     // Create nodes
     createNodes();
   };
 
-let attractToMouse = false;  // Track attraction state
+  let attractToMouse = false; // Track attraction state
 
-p.mousePressed = function() {
-    attractToMouse = true;  // Enable attraction when mouse is pressed
-};
+  p.mousePressed = function () {
+    attractToMouse = true; // Enable attraction when mouse is pressed
+  };
 
-p.mouseReleased = function() {
-    attractToMouse = false;  // Disable attraction when mouse is released
-};
+  p.mouseReleased = function () {
+    attractToMouse = false; // Disable attraction when mouse is released
+  };
 
-  p.draw = function() {
+  p.draw = function () {
     p.fill(255, 20);
     p.rect(0, 0, p.width, p.height);
 
@@ -76,9 +75,9 @@ p.mouseReleased = function() {
     }
   };
 
-  p.keyPressed = function() {
-    if (p.key == 's' || p.key == 'S') p.saveCanvas(gd.timestamp(), 'png');
-    if (p.key == 'r' || p.key == 'R') {
+  p.keyPressed = function () {
+    if (p.key == "s" || p.key == "S") p.saveCanvas(gd.timestamp(), "png");
+    if (p.key == "r" || p.key == "R") {
       p.background(255);
       createNodes();
     }
@@ -87,19 +86,20 @@ p.mouseReleased = function() {
   function createNodes() {
     nodes = [];
     for (var i = 0; i < nodeCount; i++) {
-      nodes.push(new Node(
-        p.width / 2 + p.random(-1, 1),
-        p.height / 2 + p.random(-1, 1),
-        5,
-        p.width - 5,
-        5,
-        p.height - 5
-      ));
+      nodes.push(
+        new Node(
+          p.width / 2 + p.random(-1, 1),
+          p.height / 2 + p.random(-1, 1),
+          5,
+          p.width - 5,
+          5,
+          p.height - 5
+        )
+      );
     }
   }
-
 };
 
-if (typeof window.myp5 === 'undefined') {
-  window.myp5 = new p5(sketch, 'canvas-container');
+if (typeof window.myp5 === "undefined") {
+  window.myp5 = new p5(sketch, "canvas-container");
 }

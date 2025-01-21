@@ -15,7 +15,7 @@ class MyProjectClass {
     this.property1 = param1;
     this.property2 = param2;
   }
-  
+
   // define a method
   myMethod() {
     // code to run when method is called
