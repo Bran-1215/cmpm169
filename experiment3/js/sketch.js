@@ -7,12 +7,22 @@ let nextCells = [];
 function setup() {
   // Set simulation framerate to 10 to avoid flickering
   frameRate(30);
-  const canvas = createCanvas(windowWidth, windowHeight);
+  // Get the container div
+  const container = document.getElementById("canvas-container");
+
+  // Get the width and height of the container
+  const containerWidth = container.offsetWidth;
+  const containerHeight = container.offsetHeight;
+
+  // Create the canvas with the size of the container
+  const canvas = createCanvas(containerWidth, containerHeight);
+
+  // Attach the canvas to the container
   canvas.parent("canvas-container");
 
   // Calculate columns and rows
-  columnCount = floor(width / cellSize);
-  rowCount = floor(height / cellSize);
+  columnCount = floor(containerWidth / cellSize);
+  rowCount = floor(containerHeight / cellSize);
 
   // Set each column in current cells to an empty array
   // This allows cells to be added to this array
