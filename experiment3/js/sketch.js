@@ -1,79 +1,114 @@
-// sketch.js - purpose and description here
-// Author: Your Name
-// Date:
+let cellSize = 5;
+let columnCount;
+let rowCount;
+let currentCells = [];
+let nextCells = [];
 
-// Here is how you might set up an OOP p5.js project
-// Note that p5.js looks for a file called sketch.js
-
-// Constants - User-servicable parts
-// In a longer project I like to put these in a separate file
-const VALUE1 = 1;
-const VALUE2 = 2;
-
-// Globals
-let myInstance;
-let canvasContainer;
-var centerHorz, centerVert;
-
-class MyClass {
-    constructor(param1, param2) {
-        this.property1 = param1;
-        this.property2 = param2;
-    }
-
-    myMethod() {
-        // code to run when method is called
-    }
-}
-
-function resizeScreen() {
-  centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
-  centerVert = canvasContainer.height() / 2; // Adjusted for drawing logic
-  console.log("Resizing...");
-  resizeCanvas(canvasContainer.width(), canvasContainer.height());
-  // redrawCanvas(); // Redraw everything based on new size
-}
-
-// setup() function is called once when the program starts
 function setup() {
-  // place our canvas, making it fit our container
-  canvasContainer = $("#canvas-container");
-  let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
-  canvas.parent("canvas-container");
-  // resize canvas is the page is resized
+  // Set simulation framerate to 10 to avoid flickering
+  frameRate(30);
+  createCanvas(720, 400);
 
-  // create an instance of the class
-  myInstance = new MyClass("VALUE1", "VALUE2");
+  // Calculate columns and rows
+  columnCount = floor(width / cellSize);
+  rowCount = floor(height / cellSize);
 
-  $(window).resize(function() {
-    resizeScreen();
-  });
-  resizeScreen();
+  // Set each column in current cells to an empty array
+  // This allows cells to be added to this array
+  // The index of the cell will be its row number
+  for (let column = 0; column < columnCount; column++) {
+    currentCells[column] = [];
+  }
+
+  // Repeat the same process for the next cells
+  for (let column = 0; column < columnCount; column++) {
+    nextCells[column] = [];
+  }
+
+  noLoop();
+  describe(
+    "Grid of squares that switch between white and black, demonstrating a simulation of John Conway's Game of Life. When clicked, the simulation resets."
+  );
 }
 
-// draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  background(220);    
-  // call a method on the instance
-  myInstance.myMethod();
+  generate();
+  for (let column = 0; column < columnCount; column++) {
+    for (let row = 0; row < rowCount; row++) {
+      // Get cell value (0 or 1)
+      let cell = currentCells[column][row];
 
-  // Set up rotation for the rectangle
-  push(); // Save the current drawing context
-  translate(centerHorz, centerVert); // Move the origin to the rectangle's center
-  rotate(frameCount / 100.0); // Rotate by frameCount to animate the rotation
-  fill(234, 31, 81);
-  noStroke();
-  rect(-125, -125, 250, 250); // Draw the rectangle centered on the new origin
-  pop(); // Restore the original drawing context
-
-  // The text is not affected by the translate and rotate
-  fill(255);
-  textStyle(BOLD);
-  textSize(140);
-  text("p5*", centerHorz - 105, centerVert + 40);
+      // Convert cell value to get black (0) for alive or white (255 (white) for dead
+      fill((1 - cell) * 255);
+      stroke(0);
+      rect(column * cellSize, row * cellSize, cellSize, cellSize);
+    }
+  }
 }
 
-// mousePressed() function is called once after every time a mouse button is pressed
+// Reset board when mouse is pressed
 function mousePressed() {
-    // code to run when mouse is pressed
+  randomizeBoard();
+  loop();
+}
+
+// Fill board randomly
+function randomizeBoard() {
+  for (let column = 0; column < columnCount; column++) {
+    for (let row = 0; row < rowCount; row++) {
+      // Randomly select value of either 0 (dead) or 1 (alive)
+      currentCells[column][row] = random([0, 1]);
+    }
+  }
+}
+
+// Create a new generation
+function generate() {
+  // Loop through every spot in our 2D array and count living neighbors
+  for (let column = 0; column < columnCount; column++) {
+    for (let row = 0; row < rowCount; row++) {
+      // Column left of current cell
+      // if column is at left edge, use modulus to wrap to right edge
+      let left = (column - 1 + columnCount) % columnCount;
+
+      // Column right of current cell
+      // if column is at right edge, use modulus to wrap to left edge
+      let right = (column + 1) % columnCount;
+
+      // Row above current cell
+      // if row is at top edge, use modulus to wrap to bottom edge
+      let above = (row - 1 + rowCount) % rowCount;
+
+      // Row below current cell
+      // if row is at bottom edge, use modulus to wrap to top edge
+      let below = (row + 1) % rowCount;
+
+      // Count living neighbors surrounding current cell
+      let neighbours =
+        currentCells[left][above] +
+        currentCells[column][above] +
+        currentCells[right][above] +
+        currentCells[left][row] +
+        currentCells[right][row] +
+        currentCells[left][below] +
+        currentCells[column][below] +
+        currentCells[right][below];
+
+      // Rules of Life
+      // 1. Any live cell with fewer than two live neighbours dies
+      // 2. Any live cell with more than three live neighbours dies
+      if (neighbours < 2 || neighbours > 3) {
+        nextCells[column][row] = 0;
+        // 4. Any dead cell with exactly three live neighbours will come to life.
+      } else if (neighbours === 3) {
+        nextCells[column][row] = 1;
+        // 3. Any live cell with two or three live neighbours lives, unchanged, to the next generation.
+      } else nextCells[column][row] = currentCells[column][row];
+    }
+  }
+
+  // Swap the current and next arrays for next generation
+  let temp = currentCells;
+  currentCells = nextCells;
+  nextCells = temp;
 }
