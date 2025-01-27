@@ -7,7 +7,7 @@ let nextCells = [];
 function setup() {
   // Set simulation framerate to 10 to avoid flickering
   frameRate(30);
-  const canvas = createCanvas(720, 400);
+  const canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent("canvas-container");
 
   // Calculate columns and rows
