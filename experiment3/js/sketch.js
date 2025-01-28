@@ -19,14 +19,25 @@ let explorationFactor = 0.3; // Noise factor for exploratory growth
 let overcrowdingThreshold = 6; // Maximum neighbors before forced decay
 let speedFactor = 1; // Controls the simulation speed. Increase for faster growth/decay.
 
-
 function setup() {
   frameRate(10 * speedFactor); // Scale frame rate dynamically
-  createCanvas(720, 400);
+  
+  // Get the container div
+  const container = document.getElementById("canvas-container");
+
+  // Get the width and height of the container
+  const containerWidth = container.offsetWidth;
+  const containerHeight = container.offsetHeight;
+
+  // Create the canvas with the size of the container
+  const canvas = createCanvas(containerWidth, containerHeight);
+
+  // Attach the canvas to the container
+  canvas.parent("canvas-container");
 
   // Calculate columns and rows
-  columnCount = floor(width / cellSize);
-  rowCount = floor(height / cellSize);
+  columnCount = floor(containerWidth / cellSize);
+  rowCount = floor(containerHeight / cellSize);
 
   // Initialize arrays
   slimeDensity = createGrid(0); // Represents the slime mold
@@ -51,7 +62,7 @@ function draw() {
 
   // Decay slime mold with overcrowding and branch decay considerations
   decaySlimeMold();
-  
+
   // Check and spawn slime if none exists
   spawnSlimeIfNone();
 
@@ -74,7 +85,6 @@ function draw() {
     }
   }
 }
-
 
 function createGrid(defaultValue) {
   let grid = [];
@@ -113,10 +123,12 @@ function diffuseSignals() {
         totalSignal += chemicalSignal[neighbor.x][neighbor.y];
       }
 
-      nextChemicalSignal[column][row] = (totalSignal / neighbors.length) * diffusionRate * speedFactor; // Scale diffusion
+      nextChemicalSignal[column][row] =
+        (totalSignal / neighbors.length) * diffusionRate * speedFactor; // Scale diffusion
 
       // Add contribution from food with decay
-      nextChemicalSignal[column][row] += foodConcentration[column][row] * foodSignalStrength;
+      nextChemicalSignal[column][row] +=
+        foodConcentration[column][row] * foodSignalStrength;
 
       // Apply signal decay
       nextChemicalSignal[column][row] *= signalDecay;
@@ -143,7 +155,9 @@ function growSlimeMold() {
 
         // Count yellow neighbors (non-branching cells)
         let yellowNeighbors = neighbors.filter(
-          (neighbor) => branchTimer[neighbor.x][neighbor.y] === 0 && slimeDensity[neighbor.x][neighbor.y] > 0
+          (neighbor) =>
+            branchTimer[neighbor.x][neighbor.y] === 0 &&
+            slimeDensity[neighbor.x][neighbor.y] > 0
         ).length;
 
         // Rule: Convert green slime (branching) to yellow slime if it has 3 or more yellow neighbors
@@ -239,8 +253,6 @@ function mouseDragged() {
   }
 }
 
-
-
 function spawnSlimeIfNone() {
   let slimeExists = false;
 
@@ -269,7 +281,6 @@ function spawnSlimeIfNone() {
   }
 }
 
-
 function getValidNeighbors(column, row) {
   // Get neighbors while preventing out-of-bounds access
   let neighbors = [];
@@ -282,5 +293,10 @@ function getValidNeighbors(column, row) {
 
 function isOnBorder(column, row) {
   // Check if the cell is on the border of the canvas
-  return column === 0 || column === columnCount - 1 || row === 0 || row === rowCount - 1;
+  return (
+    column === 0 ||
+    column === columnCount - 1 ||
+    row === 0 ||
+    row === rowCount - 1
+  );
 }
