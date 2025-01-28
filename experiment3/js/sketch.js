@@ -19,25 +19,14 @@ let explorationFactor = 0.3; // Noise factor for exploratory growth
 let overcrowdingThreshold = 6; // Maximum neighbors before forced decay
 let speedFactor = 1; // Controls the simulation speed. Increase for faster growth/decay.
 
+
 function setup() {
   frameRate(10 * speedFactor); // Scale frame rate dynamically
-  
-  // Get the container div
-  const container = document.getElementById("canvas-container");
-
-  // Get the width and height of the container
-  const containerWidth = container.offsetWidth;
-  const containerHeight = container.offsetHeight;
-
-  // Create the canvas with the size of the container
-  const canvas = createCanvas(containerWidth, containerHeight);
-
-  // Attach the canvas to the container
-  canvas.parent("canvas-container");
+  createCanvas(720, 400);
 
   // Calculate columns and rows
-  columnCount = floor(containerWidth / cellSize);
-  rowCount = floor(containerHeight / cellSize);
+  columnCount = floor(width / cellSize);
+  rowCount = floor(height / cellSize);
 
   // Initialize arrays
   slimeDensity = createGrid(0); // Represents the slime mold
@@ -62,19 +51,19 @@ function draw() {
 
   // Decay slime mold with overcrowding and branch decay considerations
   decaySlimeMold();
+  
+  // Check and spawn slime if none exists
+  spawnSlimeIfNone();
 
   // Display the grid
   for (let column = 0; column < columnCount; column++) {
     for (let row = 0; row < rowCount; row++) {
-      // Display slime mold
+      // Display slime mold as shades of gray
       if (slimeDensity[column][row] > 0) {
-        if (branchTimer[column][row] > 0) {
-          fill(0, 255, 0, slimeDensity[column][row] * 255); // Green for branching cells
-        } else {
-          fill(255, 255, 0, slimeDensity[column][row] * 255); // Yellow for regular slime
-        }
+        let grayValue = map(slimeDensity[column][row], 0, maxDensity, 0, 255); // Map density to grayscale (0-255)
+        fill(grayValue); // Use a shade of gray
       } else if (foodConcentration[column][row] > 0) {
-        fill(255, 50, 50); // Red for food
+        fill(50, 255, 50); // Red for food
       } else if (chemicalSignal[column][row] > 0) {
         fill(50, 50, 255, chemicalSignal[column][row] * 255); // Blue for signal
       } else {
@@ -85,6 +74,7 @@ function draw() {
     }
   }
 }
+
 
 function createGrid(defaultValue) {
   let grid = [];
@@ -98,7 +88,7 @@ function createGrid(defaultValue) {
 }
 
 function addSlimeMold(x, y) {
-  slimeDensity[x][y] = 1; // Start with full slime density
+  slimeDensity[x][y] = 0.1; // Start with full slime density
   branchTimer[x][y] = maxBranchLifetime; // Make the starting cell a branching cell
 }
 
@@ -223,6 +213,62 @@ function decaySlimeMold() {
     }
   }
 }
+
+// Erase slime mold using the mouse
+function mouseDragged() {
+  let column = floor(mouseX / cellSize);
+  let row = floor(mouseY / cellSize);
+
+  // Loop through the 2x2 area around the mouse
+  for (let dx = 0; dx < 2; dx++) {
+    for (let dy = 0; dy < 2; dy++) {
+      let neighborColumn = column + dx;
+      let neighborRow = row + dy;
+
+      // Ensure the cell is within bounds
+      if (
+        neighborColumn >= 0 &&
+        neighborColumn < columnCount &&
+        neighborRow >= 0 &&
+        neighborRow < rowCount
+      ) {
+        slimeDensity[neighborColumn][neighborRow] = 0; // Erase slime mold density
+        branchTimer[neighborColumn][neighborRow] = 0; // Reset branch timer
+      }
+    }
+  }
+}
+
+
+
+function spawnSlimeIfNone() {
+  let slimeExists = false;
+
+  // Check if any slime exists on the canvas
+  for (let column = 0; column < columnCount; column++) {
+    for (let row = 0; row < rowCount; row++) {
+      if (slimeDensity[column][row] > 0) {
+        slimeExists = true;
+        break;
+      }
+    }
+    if (slimeExists) break;
+  }
+
+  // If no slime exists, spawn one within the 50x50 center region
+  if (!slimeExists) {
+    let centerColumnStart = max(0, floor(columnCount / 2) - 25);
+    let centerRowStart = max(0, floor(rowCount / 2) - 25);
+    let centerColumnEnd = min(columnCount, centerColumnStart + 50);
+    let centerRowEnd = min(rowCount, centerRowStart + 50);
+
+    let randomColumn = floor(random(centerColumnStart, centerColumnEnd));
+    let randomRow = floor(random(centerRowStart, centerRowEnd));
+
+    addSlimeMold(randomColumn, randomRow);
+  }
+}
+
 
 function getValidNeighbors(column, row) {
   // Get neighbors while preventing out-of-bounds access
