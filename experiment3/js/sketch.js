@@ -21,11 +21,23 @@ let speedFactor = 1; // Controls the simulation speed. Increase for faster growt
 
 function setup() {
   frameRate(10 * speedFactor); // Scale frame rate dynamically
-  createCanvas(720, 400);
+  
+  // Get the container div
+  const container = document.getElementById("canvas-container");
+
+  // Get the width and height of the container
+  const containerWidth = container.offsetWidth;
+  const containerHeight = container.offsetHeight;
+
+  // Create the canvas with the size of the container
+  const canvas = createCanvas(containerWidth, containerHeight);
+
+  // Attach the canvas to the container
+  canvas.parent("canvas-container");
 
   // Calculate columns and rows
-  columnCount = floor(width / cellSize);
-  rowCount = floor(height / cellSize);
+  columnCount = floor(containerWidth / cellSize);
+  rowCount = floor(containerHeight / cellSize);
 
   // Initialize arrays
   slimeDensity = createGrid(0); // Represents the slime mold
