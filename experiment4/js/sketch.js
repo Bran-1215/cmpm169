@@ -2,6 +2,7 @@ let canvasText = 'Drag image files onto the canvas.';
 let dropArea;
 let balls = []; // Array to hold bouncing image balls
 let osc; // Oscillator for beep sounds
+let soundEnabled = false; // Track if sound is enabled
 
 function setup() {
   
@@ -80,6 +81,14 @@ function draw() {
 
 // Function to handle file drop
 function gotFile(file) {
+  if (!soundEnabled) {
+    // Enable sound on first interaction
+    getAudioContext().resume().then(() => {
+      console.log('Audio context resumed.');
+      soundEnabled = true;
+    });
+  }
+  
   if (file.type === 'image') {
     // Load the image
     loadImage(file.data, (img) => {
