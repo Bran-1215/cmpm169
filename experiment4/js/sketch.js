@@ -37,14 +37,31 @@ function draw() {
 
       let hitWall = false;
 
-      // Bounce off walls
-      if (ball.x <= 0 || ball.x + ball.size >= width) {
-        ball.xSpeed *= -1;
+      // Bounce off walls (and prevent sticking)
+      if (ball.x <= 0) {
+        ball.x = 1; // Nudge inside
+        ball.xSpeed = abs(ball.xSpeed); // Ensure positive speed
         hitWall = true;
       }
-      if (ball.y <= 0 || ball.y + ball.size >= height) {
-        ball.ySpeed *= -1;
+      if (ball.x + ball.size >= width) {
+        ball.x = width - ball.size - 1; // Nudge inside
+        ball.xSpeed = -abs(ball.xSpeed); // Ensure negative speed
         hitWall = true;
+      }
+      if (ball.y <= 0) {
+        ball.y = 1; // Nudge inside
+        ball.ySpeed = abs(ball.ySpeed); // Ensure positive speed
+        hitWall = true;
+      }
+      if (ball.y + ball.size >= height) {
+        ball.y = height - ball.size - 1; // Nudge inside
+        ball.ySpeed = -abs(ball.ySpeed); // Ensure negative speed
+        hitWall = true;
+      }
+
+      // Play beep sound on wall bounce
+      if (hitWall) {
+        playBeep();
       }
 
       // Collision detection between balls
@@ -60,11 +77,6 @@ function draw() {
         }
       }
 
-      // Play beep sound on wall bounce
-      if (hitWall) {
-        playBeep();
-      }
-
       // Draw ball (masked image)
       image(ball.imgMask, ball.x, ball.y, ball.size, ball.size);
     }
@@ -78,6 +90,7 @@ function draw() {
     describe(`Grey canvas with the text "${canvasText}" in the center.`);
   }
 }
+
 
 // Function to handle file drop
 function gotFile(file) {
@@ -145,20 +158,25 @@ function resolveCollision(ball1, ball2) {
   // If balls are moving apart, don't process collision
   if (dotProduct > 0) return;
 
-  // Swap velocity components along the normal axis (perfectly elastic collision)
-  let impulse = 2 * dotProduct;
-  ball1.xSpeed += impulse * normalX;
-  ball1.ySpeed += impulse * normalY;
-  ball2.xSpeed -= impulse * normalX;
-  ball2.ySpeed -= impulse * normalY;
+  // Elastic collision response
+  let impulse = 2 * dotProduct / 2; // 2D elastic collision formula for equal masses
+  let impulseX = impulse * normalX;
+  let impulseY = impulse * normalY;
+
+  ball1.xSpeed += impulseX;
+  ball1.ySpeed += impulseY;
+  ball2.xSpeed -= impulseX;
+  ball2.ySpeed -= impulseY;
 
   // Prevent overlap by moving the balls apart
   let overlap = (ball1.size / 2 + ball2.size / 2) - distance;
-  ball1.x -= normalX * (overlap / 2);
-  ball1.y -= normalY * (overlap / 2);
-  ball2.x += normalX * (overlap / 2);
-  ball2.y += normalY * (overlap / 2);
+  let separationFactor = 0.5; // Each ball moves half the overlap distance away
+  ball1.x -= normalX * overlap * separationFactor;
+  ball1.y -= normalY * overlap * separationFactor;
+  ball2.x += normalX * overlap * separationFactor;
+  ball2.y += normalY * overlap * separationFactor;
 }
+
 
 
 // Function to play a random-pitched beep
