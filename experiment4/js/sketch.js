@@ -1,9 +1,9 @@
 let canvasText = 'Drag an image file onto the canvas.';
 let dropArea;
-let img; // Variable for the image
+let img, imgMask; // Image and circular mask
 let x, y; // Position
 let xSpeed, ySpeed; // Speed in x and y directions
-let imgWidth, imgHeight; // Image dimensions
+let ballSize; // Diameter of the ball
 
 function setup() {
   
@@ -29,21 +29,21 @@ function setup() {
 function draw() {
   background(100);
 
-  if (img) {
-    // Move image
+  if (imgMask) {
+    // Move ball
     x += xSpeed;
     y += ySpeed;
 
     // Bounce off walls
-    if (x <= 0 || x + imgWidth >= width) {
+    if (x <= 0 || x + ballSize >= width) {
       xSpeed *= -1;
     }
-    if (y <= 0 || y + imgHeight >= height) {
+    if (y <= 0 || y + ballSize >= height) {
       ySpeed *= -1;
     }
 
-    // Draw image
-    image(img, x, y, imgWidth, imgHeight);
+    // Draw the masked (circular) image
+    image(imgMask, x, y, ballSize, ballSize);
   } else {
     // Show instructions before image is loaded
     fill(255);
@@ -58,16 +58,25 @@ function draw() {
 
 function gotFile(file) {
   if (file.type === 'image') {
-    // Load and resize image
+    // Load the image
     img = loadImage(file.data, () => {
-      // Maintain aspect ratio while resizing
-      let scale = min(width / img.width, height / img.height) * 0.3;
-      imgWidth = img.width * scale;
-      imgHeight = img.height * scale;
+      // Determine the ball size (30% of canvas height, capped)
+      ballSize = min(width, height) * 0.3;
+
+      // Create a circular mask
+      imgMask = createGraphics(ballSize, ballSize);
+      imgMask.ellipse(ballSize / 2, ballSize / 2, ballSize, ballSize);
+
+      // Resize and mask the image
+      let tempImg = createImage(ballSize, ballSize);
+      tempImg.copy(img, 0, 0, img.width, img.height, 0, 0, ballSize, ballSize);
+      tempImg.mask(imgMask);
+
+      imgMask = tempImg;
 
       // Set initial random position
-      x = random(0, width - imgWidth);
-      y = random(0, height - imgHeight);
+      x = random(0, width - ballSize);
+      y = random(0, height - ballSize);
 
       // Start animation
       loop();
