@@ -22,7 +22,31 @@ function setup() {
   osc = new p5.Oscillator('sine');
   osc.amp(0);
   osc.start();
+
+window.addEventListener('click', enableSound);
+window.addEventListener('keydown', enableSound);
+window.addEventListener('mousedown', enableSound);
+window.addEventListener('touchstart', enableSound);
+
 }
+
+function enableSound() {
+  if (!soundEnabled) {
+      getAudioContext().resume().then(() => {
+          console.log('✅ Audio context resumed.');
+          soundEnabled = true;
+
+          // Remove event listeners after enabling sound (prevents unnecessary calls)
+          window.removeEventListener('click', enableSound);
+          window.removeEventListener('keydown', enableSound);
+          window.removeEventListener('mousedown', enableSound);
+          window.removeEventListener('touchstart', enableSound);
+      }).catch(err => {
+          console.warn('⚠️ Audio resume failed:', err);
+      });
+  }
+}
+
 
 function draw() {
   background(100);
@@ -94,13 +118,6 @@ function draw() {
 
 // Function to handle file drop
 function gotFile(file) {
-  if (!soundEnabled) {
-    // Enable sound on first interaction
-    getAudioContext().resume().then(() => {
-      console.log('Audio context resumed.');
-      soundEnabled = true;
-    });
-  }
   
   if (file.type === 'image') {
     // Load the image
@@ -178,10 +195,9 @@ function resolveCollision(ball1, ball2) {
 }
 
 
-
 // Function to play a random-pitched beep
 function playBeep() {
-  let freq = random(500, 800); // Random frequency between 200Hz and 800Hz
+  let freq = random(200, 800); // Random frequency between 200Hz and 800Hz
   osc.freq(freq);
   osc.amp(0.5, 0.05); // Fade in quickly
   setTimeout(() => {
