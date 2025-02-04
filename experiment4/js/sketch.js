@@ -22,31 +22,7 @@ function setup() {
   osc = new p5.Oscillator('sine');
   osc.amp(0);
   osc.start();
-
-window.addEventListener('click', enableSound);
-window.addEventListener('keydown', enableSound);
-window.addEventListener('mousedown', enableSound);
-window.addEventListener('touchstart', enableSound);
-
 }
-
-function enableSound() {
-  if (!soundEnabled) {
-      getAudioContext().resume().then(() => {
-          console.log('✅ Audio context resumed.');
-          soundEnabled = true;
-
-          // Remove event listeners after enabling sound (prevents unnecessary calls)
-          window.removeEventListener('click', enableSound);
-          window.removeEventListener('keydown', enableSound);
-          window.removeEventListener('mousedown', enableSound);
-          window.removeEventListener('touchstart', enableSound);
-      }).catch(err => {
-          console.warn('⚠️ Audio resume failed:', err);
-      });
-  }
-}
-
 
 function draw() {
   background(100);
@@ -105,6 +81,13 @@ function draw() {
 
 // Function to handle file drop
 function gotFile(file) {
+  if (!soundEnabled) {
+    // Enable sound on first interaction
+    getAudioContext().resume().then(() => {
+      console.log('Audio context resumed.');
+      soundEnabled = true;
+    });
+  }
   
   if (file.type === 'image') {
     // Load the image
@@ -149,32 +132,38 @@ function resolveCollision(ball1, ball2) {
 
   if (distance === 0) return; // Prevent division by zero
 
-  let overlap = (ball1.size / 2 + ball2.size / 2) - distance;
   let normalX = dx / distance;
   let normalY = dy / distance;
 
-  // Separate the balls slightly to prevent sticking
-  ball1.x -= normalX * overlap / 2;
-  ball1.y -= normalY * overlap / 2;
-  ball2.x += normalX * overlap / 2;
-  ball2.y += normalY * overlap / 2;
+  // Compute relative velocity
+  let relVelX = ball2.xSpeed - ball1.xSpeed;
+  let relVelY = ball2.ySpeed - ball1.ySpeed;
 
-  // Swap velocities along the normal direction
-  let v1 = ball1.xSpeed * normalX + ball1.ySpeed * normalY;
-  let v2 = ball2.xSpeed * normalX + ball2.ySpeed * normalY;
-  let temp = v1;
-  v1 = v2;
-  v2 = temp;
+  // Compute velocity along the normal direction
+  let dotProduct = relVelX * normalX + relVelY * normalY;
 
-  ball1.xSpeed = v1 * normalX + ball1.xSpeed * (1 - abs(normalX));
-  ball1.ySpeed = v1 * normalY + ball1.ySpeed * (1 - abs(normalY));
-  ball2.xSpeed = v2 * normalX + ball2.xSpeed * (1 - abs(normalX));
-  ball2.ySpeed = v2 * normalY + ball2.ySpeed * (1 - abs(normalY));
+  // If balls are moving apart, don't process collision
+  if (dotProduct > 0) return;
+
+  // Swap velocity components along the normal axis (perfectly elastic collision)
+  let impulse = 2 * dotProduct;
+  ball1.xSpeed += impulse * normalX;
+  ball1.ySpeed += impulse * normalY;
+  ball2.xSpeed -= impulse * normalX;
+  ball2.ySpeed -= impulse * normalY;
+
+  // Prevent overlap by moving the balls apart
+  let overlap = (ball1.size / 2 + ball2.size / 2) - distance;
+  ball1.x -= normalX * (overlap / 2);
+  ball1.y -= normalY * (overlap / 2);
+  ball2.x += normalX * (overlap / 2);
+  ball2.y += normalY * (overlap / 2);
 }
+
 
 // Function to play a random-pitched beep
 function playBeep() {
-  let freq = random(200, 800); // Random frequency between 200Hz and 800Hz
+  let freq = random(500, 800); // Random frequency between 200Hz and 800Hz
   osc.freq(freq);
   osc.amp(0.5, 0.05); // Fade in quickly
   setTimeout(() => {
