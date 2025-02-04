@@ -4,6 +4,7 @@ let img, imgMask; // Image and circular mask
 let x, y; // Position
 let xSpeed, ySpeed; // Speed in x and y directions
 let ballSize; // Diameter of the ball
+let osc; // Oscillator for sound
 
 function setup() {
   
@@ -24,6 +25,11 @@ function setup() {
   y = height / 2;
   xSpeed = random(2, 4) * (random() > 0.5 ? 1 : -1);
   ySpeed = random(2, 4) * (random() > 0.5 ? 1 : -1);
+
+  // Setup sound oscillator
+  osc = new p5.Oscillator('sine');
+  osc.amp(0);
+  osc.start();
 }
 
 function draw() {
@@ -34,12 +40,21 @@ function draw() {
     x += xSpeed;
     y += ySpeed;
 
+    let hitWall = false; // Track if the ball hits a wall
+
     // Bounce off walls
     if (x <= 0 || x + ballSize >= width) {
       xSpeed *= -1;
+      hitWall = true;
     }
     if (y <= 0 || y + ballSize >= height) {
       ySpeed *= -1;
+      hitWall = true;
+    }
+
+    // Play beep sound on bounce
+    if (hitWall) {
+      playBeep();
     }
 
     // Draw the masked (circular) image
@@ -85,4 +100,13 @@ function gotFile(file) {
     canvasText = 'Not an image file!';
     redraw();
   }
+}
+
+function playBeep() {
+  let freq = random(200, 800); // Random frequency between 200Hz and 800Hz
+  osc.freq(freq);
+  osc.amp(0.5, 0.05); // Fade in quickly
+  setTimeout(() => {
+    osc.amp(0, 0.2); // Fade out smoothly
+  }, 100);
 }
