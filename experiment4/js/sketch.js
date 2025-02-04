@@ -12,7 +12,9 @@ const VOLUME_BOOST = 0.05; // Volume increase per collision
 const BLUR_STRENGTH = 10; // Maximum blur intensity
 
 function setup() {
+
   //Switch between VS Code & p5.js web editor
+  
   const container = document.getElementById("canvas-container");
   const containerWidth = container.offsetWidth;
   const containerHeight = container.offsetHeight;
@@ -20,7 +22,7 @@ function setup() {
   dropArea.parent("canvas-container");
   dropArea.drop(gotFile);
   noLoop();
-
+  
   // dropArea = createCanvas(710, 400);
   // dropArea.drop(gotFile);
   // noLoop();
@@ -44,7 +46,7 @@ function enableSound() {
       console.log('✅ Audio context resumed.');
       soundEnabled = true;
 
-      // Remove event listeners after enabling sound (prevents unnecessary calls)
+      // Remove event listeners after enabling sound
       window.removeEventListener('click', enableSound);
       window.removeEventListener('keydown', enableSound);
       window.removeEventListener('mousedown', enableSound);
@@ -56,7 +58,7 @@ function enableSound() {
 }
 
 function draw() {
-  background(100);
+  background(100, 100, 100, 50);
 
   let totalCollisions = 0; // Track number of collisions this frame
 
@@ -127,6 +129,18 @@ function draw() {
 
   // 🎵 Adjust sound volume based on collisions
   adjustSoundVolume(totalCollisions);
+}
+
+// 🖱️ Handle mouse clicks to delete balls
+function mousePressed() {
+  for (let i = balls.length - 1; i >= 0; i--) { // Iterate in reverse to remove topmost ball first
+    let ball = balls[i];
+    let d = dist(mouseX, mouseY, ball.x + ball.size / 2, ball.y + ball.size / 2);
+    if (d < ball.size / 2) {
+      balls.splice(i, 1); // Remove ball from array
+      break; // Only remove one ball per click
+    }
+  }
 }
 
 // Function to handle file drop
@@ -202,12 +216,20 @@ function resolveCollision(ball1, ball2) {
   ball2.y += normalY * overlap * separationFactor;
 }
 
-// 🎵 Function to adjust sound volume and blur based on collisions
+// 🎵 Function to adjust sound volume and frequency based on collisions and number of balls
 function adjustSoundVolume(totalCollisions) {
   if (totalCollisions > 0) {
     currentVolume += totalCollisions * VOLUME_BOOST;
   }
   
-  currentVolume = max(0, currentVolume - DECAY_RATE); // Gradual fade out
+  // Clamp volume to a max of 2.0
+  currentVolume = min(2.0, max(0, currentVolume - DECAY_RATE)); 
+  
+  // Set frequency based on the number of balls (each ball adds 100 Hz)
+  let newFrequency = 350 + balls.length * 10;
+  osc.freq(newFrequency);
+
   osc.amp(currentVolume, 0.1); // Smooth transition
 }
+
+
