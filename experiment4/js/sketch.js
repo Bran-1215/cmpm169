@@ -12,9 +12,8 @@ const VOLUME_BOOST = 0.05; // Volume increase per collision
 const BLUR_STRENGTH = 10; // Maximum blur intensity
 
 function setup() {
-
-  //Switch between VS Code & p5.js web editor
   
+  //Switch between VS Code & p5.js web editor
   const container = document.getElementById("canvas-container");
   const containerWidth = container.offsetWidth;
   const containerHeight = container.offsetHeight;
@@ -58,7 +57,12 @@ function enableSound() {
 }
 
 function draw() {
-  background(100, 100, 100, 50);
+  // Map volume (0 - 2.0) to background color (gray to red)
+  let bgRed = map(currentVolume, 0, 2.0, 100, 255); // 100 (gray) → 255 (red)
+  let bgGreen = map(currentVolume, 0, 2.0, 100, 0); // 100 → 0 (removes green)
+  let bgBlue = map(currentVolume, 0, 2.0, 100, 0);  // 100 → 0 (removes blue)
+  
+  background(bgRed, bgGreen, bgBlue, 50); // Apply motion blur effect
 
   let totalCollisions = 0; // Track number of collisions this frame
 
