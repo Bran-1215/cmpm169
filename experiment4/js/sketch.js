@@ -1,11 +1,18 @@
 let canvasText = 'Drag image files onto the canvas.';
 let dropArea;
 let balls = []; // Array to hold bouncing image balls
-let osc; // Oscillator for beep sounds
+let osc; // Single oscillator for background harmonic tone
 let soundEnabled = false; // Track if sound is enabled
+let currentVolume = 0; // Volume level that dynamically changes
+let blurStrength = 0; // Blur effect tied to volume
+
+// 🛠 Configurable settings
+const DECAY_RATE = 0.005; // Volume decay per frame (higher = faster decay)
+const VOLUME_BOOST = 0.05; // Volume increase per collision
+const BLUR_STRENGTH = 10; // Maximum blur intensity
 
 function setup() {
-  
+  //Switch between VS Code & p5.js web editor
   const container = document.getElementById("canvas-container");
   const containerWidth = container.offsetWidth;
   const containerHeight = container.offsetHeight;
@@ -13,45 +20,51 @@ function setup() {
   dropArea.parent("canvas-container");
   dropArea.drop(gotFile);
   noLoop();
-  
+
   // dropArea = createCanvas(710, 400);
   // dropArea.drop(gotFile);
   // noLoop();
 
-  // Setup sound oscillator
+  // 🎵 Setup a single continuous oscillator
   osc = new p5.Oscillator('sine');
-  osc.amp(0);
+  osc.freq(440); // A4 (harmonic tone)
+  osc.amp(0); // Start silent
   osc.start();
 
-window.addEventListener('click', enableSound);
-window.addEventListener('keydown', enableSound);
-window.addEventListener('mousedown', enableSound);
-window.addEventListener('touchstart', enableSound);
-
+  // Enable sound on user interaction
+  window.addEventListener('click', enableSound);
+  window.addEventListener('keydown', enableSound);
+  window.addEventListener('mousedown', enableSound);
+  window.addEventListener('touchstart', enableSound);
 }
 
 function enableSound() {
   if (!soundEnabled) {
-      getAudioContext().resume().then(() => {
-          console.log('✅ Audio context resumed.');
-          soundEnabled = true;
+    getAudioContext().resume().then(() => {
+      console.log('✅ Audio context resumed.');
+      soundEnabled = true;
 
-          // Remove event listeners after enabling sound (prevents unnecessary calls)
-          window.removeEventListener('click', enableSound);
-          window.removeEventListener('keydown', enableSound);
-          window.removeEventListener('mousedown', enableSound);
-          window.removeEventListener('touchstart', enableSound);
-      }).catch(err => {
-          console.warn('⚠️ Audio resume failed:', err);
-      });
+      // Remove event listeners after enabling sound (prevents unnecessary calls)
+      window.removeEventListener('click', enableSound);
+      window.removeEventListener('keydown', enableSound);
+      window.removeEventListener('mousedown', enableSound);
+      window.removeEventListener('touchstart', enableSound);
+    }).catch(err => {
+      console.warn('⚠️ Audio resume failed:', err);
+    });
   }
 }
-
 
 function draw() {
   background(100);
 
+  let totalCollisions = 0; // Track number of collisions this frame
+
   if (balls.length > 0) {
+    // Apply blur effect based on volume
+    let blurLevel = map(currentVolume, 0, 1, 0, BLUR_STRENGTH);
+    drawingContext.filter = `blur(${blurLevel}px)`;
+
     for (let i = 0; i < balls.length; i++) {
       let ball = balls[i];
 
@@ -63,29 +76,24 @@ function draw() {
 
       // Bounce off walls (and prevent sticking)
       if (ball.x <= 0) {
-        ball.x = 1; // Nudge inside
-        ball.xSpeed = abs(ball.xSpeed); // Ensure positive speed
+        ball.x = 1;
+        ball.xSpeed = abs(ball.xSpeed);
         hitWall = true;
       }
       if (ball.x + ball.size >= width) {
-        ball.x = width - ball.size - 1; // Nudge inside
-        ball.xSpeed = -abs(ball.xSpeed); // Ensure negative speed
+        ball.x = width - ball.size - 1;
+        ball.xSpeed = -abs(ball.xSpeed);
         hitWall = true;
       }
       if (ball.y <= 0) {
-        ball.y = 1; // Nudge inside
-        ball.ySpeed = abs(ball.ySpeed); // Ensure positive speed
+        ball.y = 1;
+        ball.ySpeed = abs(ball.ySpeed);
         hitWall = true;
       }
       if (ball.y + ball.size >= height) {
-        ball.y = height - ball.size - 1; // Nudge inside
-        ball.ySpeed = -abs(ball.ySpeed); // Ensure negative speed
+        ball.y = height - ball.size - 1;
+        ball.ySpeed = -abs(ball.ySpeed);
         hitWall = true;
-      }
-
-      // Play beep sound on wall bounce
-      if (hitWall) {
-        playBeep();
       }
 
       // Collision detection between balls
@@ -97,13 +105,16 @@ function draw() {
 
         if (distance < (ball.size / 2 + other.size / 2)) {
           resolveCollision(ball, other);
-          playBeep(); // Beep on collision
+          totalCollisions++; // Count the collision
         }
       }
 
       // Draw ball (masked image)
       image(ball.imgMask, ball.x, ball.y, ball.size, ball.size);
     }
+
+    // Reset blur effect for next frame
+    drawingContext.filter = "none";
   } else {
     // Show instructions before image is loaded
     fill(255);
@@ -113,14 +124,21 @@ function draw() {
     text(canvasText, width / 2, height / 2);
     describe(`Grey canvas with the text "${canvasText}" in the center.`);
   }
-}
 
+  // 🎵 Adjust sound volume based on collisions
+  adjustSoundVolume(totalCollisions);
+}
 
 // Function to handle file drop
 function gotFile(file) {
-  
+  if (!soundEnabled) {
+    getAudioContext().resume().then(() => {
+      console.log('Audio context resumed.');
+      soundEnabled = true;
+    });
+  }
+
   if (file.type === 'image') {
-    // Load the image
     loadImage(file.data, (img) => {
       let ballSize = min(width, height) * 0.3;
 
@@ -133,7 +151,6 @@ function gotFile(file) {
       tempImg.copy(img, 0, 0, img.width, img.height, 0, 0, ballSize, ballSize);
       tempImg.mask(imgMask);
 
-      // Create a new bouncing ball
       let newBall = {
         x: random(0, width - ballSize),
         y: random(0, height - ballSize),
@@ -144,8 +161,6 @@ function gotFile(file) {
       };
 
       balls.push(newBall);
-
-      // Start animation if not running
       loop();
     });
   } else {
@@ -160,23 +175,17 @@ function resolveCollision(ball1, ball2) {
   let dy = ball2.y - ball1.y;
   let distance = sqrt(dx * dx + dy * dy);
 
-  if (distance === 0) return; // Prevent division by zero
+  if (distance === 0) return;
 
   let normalX = dx / distance;
   let normalY = dy / distance;
-
-  // Compute relative velocity
   let relVelX = ball2.xSpeed - ball1.xSpeed;
   let relVelY = ball2.ySpeed - ball1.ySpeed;
-
-  // Compute velocity along the normal direction
   let dotProduct = relVelX * normalX + relVelY * normalY;
 
-  // If balls are moving apart, don't process collision
   if (dotProduct > 0) return;
 
-  // Elastic collision response
-  let impulse = 2 * dotProduct / 2; // 2D elastic collision formula for equal masses
+  let impulse = 2 * dotProduct / 2;
   let impulseX = impulse * normalX;
   let impulseY = impulse * normalY;
 
@@ -185,22 +194,20 @@ function resolveCollision(ball1, ball2) {
   ball2.xSpeed -= impulseX;
   ball2.ySpeed -= impulseY;
 
-  // Prevent overlap by moving the balls apart
   let overlap = (ball1.size / 2 + ball2.size / 2) - distance;
-  let separationFactor = 0.5; // Each ball moves half the overlap distance away
+  let separationFactor = 0.5;
   ball1.x -= normalX * overlap * separationFactor;
   ball1.y -= normalY * overlap * separationFactor;
   ball2.x += normalX * overlap * separationFactor;
   ball2.y += normalY * overlap * separationFactor;
 }
 
-
-// Function to play a random-pitched beep
-function playBeep() {
-  let freq = random(200, 800); // Random frequency between 200Hz and 800Hz
-  osc.freq(freq);
-  osc.amp(0.5, 0.05); // Fade in quickly
-  setTimeout(() => {
-    osc.amp(0, 0.2); // Fade out smoothly
-  }, 100);
+// 🎵 Function to adjust sound volume and blur based on collisions
+function adjustSoundVolume(totalCollisions) {
+  if (totalCollisions > 0) {
+    currentVolume += totalCollisions * VOLUME_BOOST;
+  }
+  
+  currentVolume = max(0, currentVolume - DECAY_RATE); // Gradual fade out
+  osc.amp(currentVolume, 0.1); // Smooth transition
 }
