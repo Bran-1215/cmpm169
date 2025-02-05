@@ -19,7 +19,7 @@ function setup() {
   //Switch between VS Code & p5.js web editor
 
   const container = document.getElementById("canvas-container");
-  const containerWidth = container.offsetWidth;
+  const containerWidth = container.offsetWidth/2;
   const containerHeight = container.offsetHeight;
   dropArea = createCanvas(containerWidth, containerHeight);
   dropArea.parent("canvas-container");
