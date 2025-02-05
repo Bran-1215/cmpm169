@@ -1,4 +1,4 @@
-let canvasText = 'Drag image files onto the canvas.';
+let canvasText = 'Drag whatever image files you\'ve\nbeen thinking about onto the canvas.\nLet them roam free!\n\n\n Click on them to remove them.';
 let dropArea;
 let balls = []; // Array to hold bouncing image balls
 let osc; // Single oscillator for background harmonic tone
@@ -30,7 +30,7 @@ function setup() {
   // dropArea.drop(gotFile);
   // noLoop();
 
-  // 🎵 Setup a single continuous oscillator
+  //Setup a single continuous oscillator
   osc = new p5.Oscillator('sine');
   osc.freq(440); // A4 (harmonic tone)
   osc.amp(0); // Start silent
@@ -46,7 +46,7 @@ function setup() {
 function enableSound() {
   if (!soundEnabled) {
     getAudioContext().resume().then(() => {
-      console.log('✅ Audio context resumed.');
+      console.log('Audio context resumed.');
       soundEnabled = true;
 
       // Remove event listeners after enabling sound
@@ -55,7 +55,7 @@ function enableSound() {
       window.removeEventListener('mousedown', enableSound);
       window.removeEventListener('touchstart', enableSound);
     }).catch(err => {
-      console.warn('⚠️ Audio resume failed:', err);
+      console.warn('Audio resume failed:', err);
     });
   }
 }
@@ -135,11 +135,11 @@ function draw() {
     describe(`Grey canvas with the text "${canvasText}" in the center.`);
   }
 
-  // 🎵 Adjust sound volume based on collisions
+  //Adjust sound volume based on collisions
   adjustSoundVolume(totalCollisions);
 }
 
-// 🖱️ Handle mouse clicks to delete balls
+//Handle mouse clicks to delete balls
 function mousePressed() {
   for (let i = balls.length - 1; i >= 0; i--) { // Iterate in reverse to remove topmost ball first
     let ball = balls[i];
@@ -223,11 +223,9 @@ function resolveCollision(ball1, ball2) {
   ball2.x += normalX * overlap * separationFactor;
   ball2.y += normalY * overlap * separationFactor;
 
-  // 🎯 **NEW: SHRINK BALLS ON COLLISION**
   ball1.size = max(MIN_BALL_SIZE, ball1.size - SHRINK_AMOUNT);
   ball2.size = max(MIN_BALL_SIZE, ball2.size - SHRINK_AMOUNT);
 
-  // 🎯 **NEW: POP AND REMOVE BALLS IF THEY REACH MIN SIZE**
   if (ball1.size <= MIN_BALL_SIZE) {
     playPopSound();
     balls.splice(balls.indexOf(ball1), 1);
@@ -238,7 +236,7 @@ function resolveCollision(ball1, ball2) {
   }
 }
 
-// 🎵 Function to adjust sound volume and frequency based on collisions and number of balls
+//Function to adjust sound volume and frequency based on collisions and number of balls
 function adjustSoundVolume(totalCollisions) {
   if (totalCollisions > 0) {
     currentVolume += totalCollisions * VOLUME_BOOST;
@@ -268,3 +266,29 @@ function playPopSound() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to play a random-pitched beep
+function playBeep() {
+  let freq = random(200, 800); // Random frequency between 200Hz and 800Hz
+  osc.freq(freq);
+  osc.amp(0.5, 0.05); // Fade in quickly
+  setTimeout(() => {
+    osc.amp(0, 0.2); // Fade out smoothly
+  }, 100);
+}
