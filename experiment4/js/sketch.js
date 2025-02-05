@@ -10,10 +10,14 @@ let blurStrength = 0; // Blur effect tied to volume
 const DECAY_RATE = 0.005; // Volume decay per frame (higher = faster decay)
 const VOLUME_BOOST = 0.05; // Volume increase per collision
 const BLUR_STRENGTH = 10; // Maximum blur intensity
+const SHRINK_AMOUNT = 2.5;  // Amount the ball shrinks per collision
+const MIN_BALL_SIZE = 75;   // Smallest possible ball size
+
 
 function setup() {
-  
+
   //Switch between VS Code & p5.js web editor
+
   const container = document.getElementById("canvas-container");
   const containerWidth = container.offsetWidth;
   const containerHeight = container.offsetHeight;
@@ -218,6 +222,20 @@ function resolveCollision(ball1, ball2) {
   ball1.y -= normalY * overlap * separationFactor;
   ball2.x += normalX * overlap * separationFactor;
   ball2.y += normalY * overlap * separationFactor;
+
+  // 🎯 **NEW: SHRINK BALLS ON COLLISION**
+  ball1.size = max(MIN_BALL_SIZE, ball1.size - SHRINK_AMOUNT);
+  ball2.size = max(MIN_BALL_SIZE, ball2.size - SHRINK_AMOUNT);
+
+  // 🎯 **NEW: POP AND REMOVE BALLS IF THEY REACH MIN SIZE**
+  if (ball1.size <= MIN_BALL_SIZE) {
+    playPopSound();
+    balls.splice(balls.indexOf(ball1), 1);
+  }
+  if (ball2.size <= MIN_BALL_SIZE) {
+    playPopSound();
+    balls.splice(balls.indexOf(ball2), 1);
+  }
 }
 
 // 🎵 Function to adjust sound volume and frequency based on collisions and number of balls
@@ -235,5 +253,18 @@ function adjustSoundVolume(totalCollisions) {
 
   osc.amp(currentVolume, 0.1); // Smooth transition
 }
+
+function playPopSound() {
+  let popOsc = new p5.Oscillator('square');  // Use square wave for a "pop" effect
+  popOsc.freq(random(300, 600));  // Randomized pop pitch
+  popOsc.amp(0.001, 0.02);  // Quick attack (start)
+  popOsc.start();
+
+  setTimeout(() => {
+    popOsc.amp(0, 0.1);  // Quick fade-out
+    setTimeout(() => popOsc.stop(), 50); // Stop oscillator completely
+  }, 50);
+}
+
 
 
