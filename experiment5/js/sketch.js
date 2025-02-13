@@ -13,7 +13,10 @@ function preload() {
 }
 
 function setup() {
-  let cnv = createCanvas(windowWidth, windowHeight, WEBGL);
+  const container = document.getElementById("canvas-container");
+  const containerWidth = container.offsetWidth/2;
+  const containerHeight = container.offsetHeight;
+  let cnv = createCanvas(containerWidth, containerHeight, WEBGL);
   cnv.parent("canvas-container");
   cols = w / scl;
   rows = h / scl;
