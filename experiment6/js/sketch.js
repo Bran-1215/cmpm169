@@ -6,6 +6,7 @@ const switchWidth = 300; // Total width of the switch
 const switchHeight = 50; // Height of the switch
 const numStates = 3; // Number of switch positions
 let backgroundColor = 255;
+let soundEnabled = false;
 
 let lastUpdateTime = 0; // Tracks last time the sentence was updated
 let updateInterval = 3000; // 3 seconds
