@@ -42,6 +42,29 @@ function setup() {
   osc3.start();
 
   generateSentence();
+
+  // Enable sound on user interaction
+  window.addEventListener('click', enableSound);
+  window.addEventListener('keydown', enableSound);
+  window.addEventListener('mousedown', enableSound);
+  window.addEventListener('touchstart', enableSound);
+}
+
+function enableSound() {
+  if (!soundEnabled) {
+    getAudioContext().resume().then(() => {
+      console.log('Audio context resumed.');
+      soundEnabled = true;
+
+      // Remove event listeners after enabling sound
+      window.removeEventListener('click', enableSound);
+      window.removeEventListener('keydown', enableSound);
+      window.removeEventListener('mousedown', enableSound);
+      window.removeEventListener('touchstart', enableSound);
+    }).catch(err => {
+      console.warn('Audio resume failed:', err);
+    });
+  }
 }
 
 function draw() {
@@ -53,7 +76,6 @@ function draw() {
 }
 
 function mousePressed() {
-  getAudioContext().resume();
   if (mouseY >= switchY && mouseY <= switchY + switchHeight) {
     let sectionWidth = switchWidth / numStates;
 
