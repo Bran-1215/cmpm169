@@ -20,7 +20,6 @@ function setup() {
   cnv.parent("canvas-container");
   textAlign(CENTER, CENTER);
   textSize(30);
-  getAudioContext().resume();
 
   osc1 = new p5.Oscillator();
   osc2 = new p5.Oscillator();
@@ -54,6 +53,7 @@ function draw() {
 }
 
 function mousePressed() {
+  getAudioContext().resume();
   if (mouseY >= switchY && mouseY <= switchY + switchHeight) {
     let sectionWidth = switchWidth / numStates;
 
