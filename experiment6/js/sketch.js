@@ -1,7 +1,7 @@
 let currentState = 1; // Tracks the current state (1, 2, or 3)
 let lastSentence = "";
-const switchX = window.innerWidth / 2 - 150; // X position of the switch
-const switchY = window.innerHeight - 50; // Y position of the switch (bottom)
+let switchX; // X position of the switch
+let switchY; // Y position of the switch (bottom)
 const switchWidth = 300; // Total width of the switch
 const switchHeight = 50; // Height of the switch
 const numStates = 3; // Number of switch positions
@@ -12,12 +12,15 @@ let updateInterval = 3000; // 3 seconds
 let osc1, osc2, osc3; // Sound oscillators
 function setup() {
   const container = document.getElementById("canvas-container");
-  const containerWidth = container.offsetWidth/2;
+  const containerWidth = container.offsetWidth / 2;
   const containerHeight = container.offsetHeight;
+  switchX = containerWidth / 2 - 150;
+  switchY = containerHeight - 50;
   let cnv = createCanvas(containerWidth, containerHeight);
   cnv.parent("canvas-container");
   textAlign(CENTER, CENTER);
   textSize(30);
+  getAudioContext().resume();
 
   osc1 = new p5.Oscillator();
   osc2 = new p5.Oscillator();
